@@ -1,0 +1,220 @@
+<section class="services-area ptb-100 bg-gray">
+    <div class="container">
+        <div class="row mt-1 pt-1">
+            <div class="col-md-12 col-lg-12 mt-3 pt-3">
+                <app-alert></app-alert>
+                <div class="row">
+                    <div class="col">
+                        <mat-error *ngIf="hasError('weeklyTotalHours')">{{getWeeklyHoursErrorMessage()}}</mat-error>
+                    </div>
+                </div>
+                <div fxLayout fxLayoutAlign="center center" class="filter-header" *ngIf="myTimesheetDetails">
+                    My Timesheet for {{myTimesheetDetails.weekEnding | date : 'MM/dd/yyyy'}}
+                </div>
+                <div class="row" *ngIf="myTimesheetDetails">
+                    <div class="col-md-3">Name: {{myTimesheetDetails.contractorName}}</div>
+                    <div class="col-md-3">Client: {{myTimesheetDetails.name}}</div>
+                    <div class="col-md-6">Location: {{myTimesheetDetails.locationName}}</div>
+                </div>
+                <form [formGroup]="timesheetForm" autocomplete="off" novalidate (ngSubmit)="openWarningDialog(warningDialog);">
+                    <div *ngIf="!myTimesheetDetails" class="timesheet-container alert alert-danger text-center">No Records Found or Timesheet has been released.</div>
+                    <div *ngIf="myTimesheetDetails">
+                        <div class="row">                        
+                            <div class="col">
+                                <mat-form-field appearance="fill">
+                                    <mat-label>Week Ending</mat-label>
+                                    <input matInput [matDatepicker]="picker1" formControlName="weekEnding" [disabled]="true"
+                                    (dateChange)="addEvent('change', $event)">
+                                    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker1></mat-datepicker>
+                                    <mat-error *ngIf="hasError('weekEnding')">{{getWeekEndingErrorMessage()}}</mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <mat-form-field appearance="fill">
+                                    <mat-label>Project / Tasks</mat-label>
+                                    <textarea matInput formControlName="projectName" [(ngModel)]="projectvalue"></textarea>
+                                    <button mat-button [hidden]="!isEditApproval" *ngIf="projectvalue" matSuffix mat-icon-button aria-label="Clear" (click)="projectvalue=''">
+                                        <mat-icon>close</mat-icon>
+                                    </button>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="timesheet-container" *ngIf="myTimesheetDetails">
+                            <table class="table table-light table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Day</th>
+                                        <th scope="col">Start Work</th>
+                                        <th scope="col">Lunch Out</th>
+                                        <th scope="col">Lunch In</th>
+                                        <th scope="col">End Work</th>
+                                        <th scope="col">Total Hours</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{myTimesheetDetails.sundayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Sunday</td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.sundayStart" [ngxTimepicker]="sundayStart" readonly>
+                                            <ngx-material-timepicker #sundayStart (timeSet)="setStart($event, 'sun')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.sundayLunchOut" [ngxTimepicker]="sundayLunchOut" readonly>
+                                            <ngx-material-timepicker #sundayLunchOut (timeSet)="setLunchOut($event, 'sun')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.sundayLunchIn" [ngxTimepicker]="sundayLunchIn" readonly>
+                                            <ngx-material-timepicker #sundayLunchIn (timeSet)="setLunchIn($event, 'sun')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.sundayEnd" [ngxTimepicker]="sundayEnd" readonly>
+                                            <ngx-material-timepicker #sundayEnd (timeSet)="setEnd($event, 'sun')"></ngx-material-timepicker></td>
+                                        <td>{{myTimesheetDetails.sundayHours | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myTimesheetDetails.mondayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Monday</td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval"[value]="myTimesheetDetails.mondayStart" [ngxTimepicker]="mondayStart" readonly>
+                                            <ngx-material-timepicker #mondayStart (timeSet)="setStart($event, 'mon')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.mondayLunchOut" [ngxTimepicker]="mondayLunchOut" readonly>
+                                            <ngx-material-timepicker #mondayLunchOut (timeSet)="setLunchOut($event, 'mon')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.mondayLunchIn" [ngxTimepicker]="mondayLunchIn" readonly>
+                                            <ngx-material-timepicker #mondayLunchIn (timeSet)="setLunchIn($event, 'mon')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.mondayEnd" [ngxTimepicker]="mondayEnd" readonly>
+                                            <ngx-material-timepicker #mondayEnd (timeSet)="setEnd($event, 'mon')"></ngx-material-timepicker></td>
+                                        <td>{{myTimesheetDetails.mondayHours | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myTimesheetDetails.tuesdayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Tuesday</td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.tuesdayStart" [ngxTimepicker]="tuesdayStart" readonly>
+                                            <ngx-material-timepicker #tuesdayStart (timeSet)="setStart($event, 'tues')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.tuesdayLunchOut" [ngxTimepicker]="tuesdayLunchOut" readonly>
+                                            <ngx-material-timepicker #tuesdayLunchOut (timeSet)="setLunchOut($event, 'tues')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.tuesdayLunchIn" [ngxTimepicker]="tuesdayLunchIn" readonly>
+                                            <ngx-material-timepicker #tuesdayLunchIn (timeSet)="setLunchIn($event, 'tues')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.tuesdayEnd" [ngxTimepicker]="tuesdayEnd" readonly>
+                                            <ngx-material-timepicker #tuesdayEnd (timeSet)="setEnd($event, 'tues')"></ngx-material-timepicker></td>
+                                        <td>{{myTimesheetDetails.tuesdayHours | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myTimesheetDetails.wednesdayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Wednesday</td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.wednesdayStart" [ngxTimepicker]="wednesdayStart" readonly>
+                                            <ngx-material-timepicker #wednesdayStart (timeSet)="setStart($event, 'wed')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.wednesdayLunchOut" [ngxTimepicker]="wednesdayLunchOut" readonly>
+                                            <ngx-material-timepicker #wednesdayLunchOut (timeSet)="setLunchOut($event, 'wed')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.wednesdayLunchIn" [ngxTimepicker]="wednesdayLunchIn" readonly>
+                                            <ngx-material-timepicker #wednesdayLunchIn (timeSet)="setLunchIn($event, 'wed')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.wednesdayEnd" [ngxTimepicker]="wednesdayEnd" readonly>
+                                            <ngx-material-timepicker #wednesdayEnd (timeSet)="setEnd($event, 'wed')"></ngx-material-timepicker></td>
+                                        <td>{{myTimesheetDetails.wednesdayHours | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myTimesheetDetails.thursdayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Thursday</td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.thursdayStart" [ngxTimepicker]="thursdayStart" readonly>
+                                            <ngx-material-timepicker #thursdayStart (timeSet)="setStart($event, 'thur')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.thursdayLunchOut" [ngxTimepicker]="thursdayLunchOut" readonly>
+                                            <ngx-material-timepicker #thursdayLunchOut (timeSet)="setLunchOut($event, 'thur')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.thursdayLunchIn" [ngxTimepicker]="thursdayLunchIn" readonly>
+                                            <ngx-material-timepicker #thursdayLunchIn (timeSet)="setLunchIn($event, 'thur')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.thursdayEnd" [ngxTimepicker]="thursdayEnd" readonly>
+                                            <ngx-material-timepicker #thursdayEnd (timeSet)="setEnd($event, 'thur')"></ngx-material-timepicker></td>
+                                        <td>{{myTimesheetDetails.thursdayHours | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myTimesheetDetails.fridayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Friday</td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.fridayStart" [ngxTimepicker]="fridayStart" readonly>
+                                            <ngx-material-timepicker #fridayStart (timeSet)="setStart($event, 'fri')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.fridayLunchOut" [ngxTimepicker]="fridayLunchOut" readonly>
+                                            <ngx-material-timepicker #fridayLunchOut (timeSet)="setLunchOut($event, 'fri')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.fridayLunchIn" [ngxTimepicker]="fridayLunchIn" readonly>
+                                            <ngx-material-timepicker #fridayLunchIn (timeSet)="setLunchIn($event, 'fri')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.fridayEnd" [ngxTimepicker]="fridayEnd" readonly>
+                                            <ngx-material-timepicker #fridayEnd (timeSet)="setEnd($event, 'fri')"></ngx-material-timepicker></td>
+                                        <td>{{myTimesheetDetails.fridayHours | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myTimesheetDetails.saturdayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Saturday</td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.saturdayStart" [ngxTimepicker]="saturdayStart" readonly>
+                                            <ngx-material-timepicker #saturdayStart (timeSet)="setStart($event, 'sat')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.saturdayLunchOut" [ngxTimepicker]="saturdayLunchOut" readonly>
+                                            <ngx-material-timepicker #saturdayLunchOut (timeSet)="setLunchOut($event, 'sat')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.saturdayLunchIn" [ngxTimepicker]="saturdayLunchIn" readonly>
+                                            <ngx-material-timepicker #saturdayLunchIn (timeSet)="setLunchIn($event, 'sat')"></ngx-material-timepicker></td>
+                                        <td><input placeholder="HH:MM" aria-label="12hr format" [disabled]="!isEditApproval" [value]="myTimesheetDetails.saturdayEnd" [ngxTimepicker]="saturdayEnd" readonly>
+                                            <ngx-material-timepicker #saturdayEnd (timeSet)="setEnd($event, 'sat')"></ngx-material-timepicker></td>
+                                        <td>{{myTimesheetDetails.saturdayHours | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="6" class="text-right"><b>Weekly Hours:</b></td>
+                                        <td>{{myTimesheetDetails.weeklyTotalHours | number:'1.2-2'}}
+                                            <mat-error *ngIf="hasError('weeklyTotalHours')">{{getWeeklyHoursErrorMessage()}}</mat-error></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col">
+                                    <mat-form-field appearance="fill">
+                                        <mat-label>Approved By</mat-label>
+                                        <input matInput placeholder="enter approver's name" formControlName="approverName" [(ngModel)]="approvervalue"/>
+                                        <button mat-button *ngIf="approvervalue" matSuffix mat-icon-button aria-label="Clear" (click)="approvervalue=''">
+                                            <mat-icon>close</mat-icon>
+                                        </button>
+                                        <mat-error *ngIf="hasError('approverName')">{{getApproverNameErrorMessage()}}</mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 pt-1">
+                            <button mat-raised-button color="primary" *ngIf="!isEditApproval"><mat-icon>check_circle_outline</mat-icon>&nbsp;Approve</button>
+                            <button mat-raised-button color="warn" (click)="enableTimesheetForm();"><mat-icon>playlist_add_check</mat-icon>&nbsp;Edit with Approval</button>
+                            <button mat-raised-button color="accent" (click)="declineTimesheet();" *ngIf="!isEditApproval"><mat-icon>block</mat-icon>&nbsp;Reject</button>
+                            <a mat-raised-button (click)="navigateToProcessTimesheet()" class="btn btn-link" *ngIf="isEditApproval">Back</a>
+                        </div>
+                        <div class="row">
+                            <div class="form-group form-check">
+                                <label class="form-check-label" style="color: black">
+                                    I hereby certify that I am authorized to approve this agreement on behalf of my company and my authorization of this timesheet is agreement to pay related charges.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-template #warningDialog let-modal>
+                        <div class="modal-header justify-content-center bg-warning">
+                            <h4 class="modal-title">Confirm</h4>
+                        </div>
+                        <div class="modal-body text-center">
+                            <h5>Are you sure you want to submit your timesheet for weekending {{myTimesheetDetails.weekEnding | date : 'MM/dd/yyyy'}}?</h5>
+                        </div>
+                        <div class="modal-footer">
+                            <button mat-button mat-dialog-close class="btn">No</button>
+                            <button mat-button mat-dialog-close class="btn btn-primary"
+                            (click)="submitTimesheet(approveAction)">Yes</button>
+                        </div>
+                    </ng-template>
+                    <ng-template #declineReasonDialog let-modal>
+                        <div class="modal-header justify-content-center bg-warning">
+                            <h5 class="modal-title">List Reason</h5>
+                        </div>
+                        <div class="modal-body text-center">
+                            <mat-form-field>
+                                <textarea matInput formControlName="rejectReason" [(ngModel)]="reasonvalue"></textarea>
+                                <button mat-button [hidden]="!isEditApproval" *ngIf="reasonvalue" matSuffix mat-icon-button aria-label="Clear" (click)="reasonvalue=''">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                                <mat-error *ngIf="hasError('rejectReason')">{{getRejectReasonErrorMessage()}}</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="modal-footer">
+                            <button mat-button (click)="close()" class="btn">Close</button>
+                            <button mat-button class="btn btn-danger"
+                            (click)="submitTimesheet(approveAction)">Submit</button>
+                        </div>
+                    </ng-template>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

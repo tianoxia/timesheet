@@ -1,0 +1,586 @@
+<section class="services-area ptb-100 bg-gray">
+    <div class="container">
+        <div class="row mt-1 pt-1">
+            <div class="col-md-12 col-lg-12 mt-3 pt-3">
+                <app-alert></app-alert>
+                <div class="row">
+                    <div class="col">
+                        <mat-error *ngIf="hasError('weeklyTotalExpense')">{{getWeeklyExpenseErrorMessage()}}</mat-error>
+                    </div>
+                </div>
+                <div *ngIf="expenseTitle; then foundBlock else notFoundBlock"></div>
+                <ng-template #foundBlock>
+                    <div fxLayout fxLayoutAlign="center center" class="filter-header" *ngIf="myExpenseDraftDetails">
+                        My Expense Draft for {{myExpenseDraftDetails.weekEnding | date : 'MM/dd/yyyy'}}
+                    </div>
+                    <div class="row" *ngIf="expenseTitle">
+                        <div class="col-md-3">Name: {{expenseTitle.firstName+' '+expenseTitle.lastName}}</div>
+                        <div class="col-md-3">Client: {{expenseTitle.clientName}}</div>
+                        <div class="col-md-6">Location: {{expenseTitle.location}}</div>
+                    </div>
+                    <form [formGroup]="draftForm" autocomplete="off" novalidate (ngSubmit)="submitDraft(draftForm.value)">
+                        <div class="row">
+                            <div class="col">
+                                <mat-form-field appearance="fill">
+                                    <mat-label>Week Ending</mat-label>
+                                    <input matInput [matDatepicker]="picker1" formControlName="weekEnding" 
+                                         (dateChange)="addEvent('change', $event)">
+                                    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker1></mat-datepicker>
+                                    <mat-error *ngIf="hasError('weekEnding')">{{getWeekEndingErrorMessage()}}</mat-error>
+                                </mat-form-field>                            
+                            </div>
+                            <div class="col">
+                                <mat-form-field appearance="fill">
+                                    <mat-label>Prepaid Expense</mat-label>
+                                    <span matPrefix>$&nbsp;</span>
+                                    <input matInput type="number" formControlName="prepaidExpense" [value]="myExpenseDraftDetails.prepaidExpense" (change)="setPrepaidExpense($event.target.value)">
+                                    <button mat-button *ngIf="myExpenseDraftDetails.prepaidExpense" matSuffix mat-icon-button aria-label="Clear" (click)="resetPrepaidExpense()">
+                                        <mat-icon>close</mat-icon>
+                                    </button>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <mat-form-field appearance="fill">
+                                    <mat-label>Project / Tasks</mat-label>
+                                    <textarea matInput formControlName="projectName" [(ngModel)]="projectvalue"></textarea>
+                                    <button mat-button *ngIf="projectvalue" matSuffix mat-icon-button aria-label="Clear" (click)="projectvalue=''">
+                                        <mat-icon>close</mat-icon>
+                                    </button>
+                                </mat-form-field>
+                            </div>                            
+                        </div>                        
+                        <div class="expense-container" *ngIf="myExpenseDraftDetails">
+                            <table class="table table-light table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Day</th>
+                                        <th scope="col">Hotel</th>
+                                        <th scope="col">Travel</th>
+                                        <th scope="col">Marketing</th>
+                                        <th scope="col">Mileage<br>(${{mileageRate}} / mile)</th>
+                                        <th scope="col">Meals</th>
+                                        <th scope="col">Phone</th>
+                                        <th scope="col">Other</th>
+                                        <th scope="col">Total Expenses</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{myExpenseDraftDetails.sundayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Sunday</td>
+                                        <td>
+                                            <mat-form-field>
+                                                <mat-label>Hotel</mat-label>
+                                                <span matPrefix>$</span>
+                                                <input matInput type="number" formControlName="sundayHotel" [value]="myExpenseDraftDetails.sundayHotel" (change)="setHotel($event, 'sun')">
+                                                <button mat-button *ngIf="myExpenseDraftDetails.sundayHotel" matSuffix mat-icon-button aria-label="Clear" (click)="resetHotel('sun')">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>                                            
+                                            </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Travel</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="sundayTravel" [value]="myExpenseDraftDetails.sundayTravel" (change)="setTravel($event, 'sun')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.sundayTravel" matSuffix mat-icon-button aria-label="Clear" (click)="resetTravel('sun')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Marketing</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="sundayMarketing" [value]="myExpenseDraftDetails.sundayMarketing" (change)="setMarketing($event, 'sun')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.sundayMarketing" matSuffix mat-icon-button aria-label="Clear" (click)="resetMarketing('sun')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td>
+                                            <table class="table-plain"><tbody><tr><td>
+                                                <mat-form-field>
+                                                    <mat-label>Miles</mat-label>
+                                                    <input matInput type="number" formControlName="sundayMiles" [value]="myExpenseDraftDetails.sundayMiles" (change)="setMileage($event, 'sun')">
+                                                    <button mat-button *ngIf="myExpenseDraftDetails.sundayMiles" matSuffix mat-icon-button aria-label="Clear" (click)="resetMiles('sun')">
+                                                        <mat-icon>close</mat-icon>
+                                                    </button>
+                                                </mat-form-field></td>
+                                            </tr>
+                                            <tr><td>
+                                                x {{mileageRate}} = $<b>{{myExpenseDraftDetails.sundayMileage | number:'1.2-2'}}</b>
+                                            </td></tr></tbody>
+                                        </table></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Meals</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="sundayMeals" [value]="myExpenseDraftDetails.sundayMeals" (change)="setMeals($event, 'sun')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.sundayMeals" matSuffix mat-icon-button aria-label="Clear" (click)="resetMeals('sun')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Phone</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="sundayPhone" [value]="myExpenseDraftDetails.sundayPhone" (change)="setPhone($event, 'sun')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.sundayPhone" matSuffix mat-icon-button aria-label="Clear" (click)="resetPhone('sun')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Other</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="sundayOther" [value]="myExpenseDraftDetails.sundayOther" (change)="setOther($event, 'sun')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.sundayOther" matSuffix mat-icon-button aria-label="Clear" (click)="resetOther('sun')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><span matPrefix>$</span>{{myExpenseDraftDetails.sundayExpenses | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myExpenseDraftDetails.mondayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Monday</td>
+                                        <td>
+                                            <mat-form-field>
+                                                <mat-label>Hotel</mat-label>
+                                                <span matPrefix>$</span>
+                                                <input matInput type="number" formControlName="mondayHotel" [value]="myExpenseDraftDetails.mondayHotel" (change)="setHotel($event, 'mon')">
+                                                <button mat-button *ngIf="myExpenseDraftDetails.mondayHotel" matSuffix mat-icon-button aria-label="Clear" (click)="resetHotel('mon')">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>                                            
+                                            </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Travel</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="mondayTravel" [value]="myExpenseDraftDetails.mondayTravel" (change)="setTravel($event, 'mon')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.mondayTravel" matSuffix mat-icon-button aria-label="Clear" (click)="resetTravel('mon')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Marketing</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="mondayMarketing" [value]="myExpenseDraftDetails.mondayMarketing" (change)="setMarketing($event, 'mon')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.mondayMarketing" matSuffix mat-icon-button aria-label="Clear" (click)="resetMarketing('mon')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><table class="table-plain"><tbody><tr><td>
+                                            <mat-form-field>
+                                                <mat-label>Miles</mat-label>
+                                                <input matInput type="number" formControlName="mondayMiles" [value]="myExpenseDraftDetails.mondayMiles" (change)="setMileage($event, 'mon')">
+                                                <button mat-button *ngIf="myExpenseDraftDetails.mondayMiles" matSuffix mat-icon-button aria-label="Clear" (click)="resetMiles('mon')">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>
+                                            </mat-form-field></td></tr>
+                                            <tr><td>x {{mileageRate}} = $<b>{{myExpenseDraftDetails.mondayMileage | number:'1.2-2'}}</b></td></tr></tbody>
+                                            </table>
+                                        </td>
+                                        <td><mat-form-field>
+                                            <mat-label>Meals</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="mondayMeals" [value]="myExpenseDraftDetails.mondayMeals" (change)="setMeals($event, 'mon')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.mondayMeals" matSuffix mat-icon-button aria-label="Clear" (click)="resetMeals('mon')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Phone</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="mondayPhone" [value]="myExpenseDraftDetails.mondayPhone" (change)="setPhone($event, 'mon')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.mondayPhone" matSuffix mat-icon-button aria-label="Clear" (click)="resetPhone('mon')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Other</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="mondayOther" [value]="myExpenseDraftDetails.mondayOther" (change)="setOther($event, 'mon')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.mondayOther" matSuffix mat-icon-button aria-label="Clear" (click)="resetOther('mon')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><span matPrefix>$</span>{{myExpenseDraftDetails.mondayExpenses | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myExpenseDraftDetails.tuesdayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Tuesday</td>
+                                        <td>
+                                            <mat-form-field>
+                                                <mat-label>Hotel</mat-label>
+                                                <span matPrefix>$</span>
+                                                <input matInput type="number" formControlName="tuesdayHotel" [value]="myExpenseDraftDetails.tuesdayHotel" (change)="setHotel($event, 'tues')">
+                                                <button mat-button *ngIf="myExpenseDraftDetails.tuesdayHotel" matSuffix mat-icon-button aria-label="Clear" (click)="resetHotel('tues')">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>                                            
+                                            </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Travel</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="tuesdayTravel" [value]="myExpenseDraftDetails.tuesdayTravel" (change)="setTravel($event, 'tues')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.tuesdayTravel" matSuffix mat-icon-button aria-label="Clear" (click)="resetTravel('tues')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Marketing</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="tuesdayMarketing" [value]="myExpenseDraftDetails.tuesdayMarketing" (change)="setMarketing($event, 'tues')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.tuesdayMarketing" matSuffix mat-icon-button aria-label="Clear" (click)="resetMarketing('tues')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><table class="table-plain"><tbody><tr><td><mat-form-field>
+                                                <mat-label>Miles</mat-label>
+                                                <input matInput type="number" formControlName="tuesdayMiles" [value]="myExpenseDraftDetails.tuesdayMiles" (change)="setMileage($event, 'tues')">
+                                                <button mat-button *ngIf="myExpenseDraftDetails.tuesdayMiles" matSuffix mat-icon-button aria-label="Clear" (click)="resetMiles('tues')">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>
+                                            </mat-form-field></td></tr><tr><td>
+                                                x {{mileageRate}} = $<b>{{myExpenseDraftDetails.tuesdayMileage | number:'1.2-2'}}</b>
+                                            </td></tr>
+                                            </tbody></table>
+                                        </td>
+                                        <td><mat-form-field>
+                                            <mat-label>Meals</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="tuesdayMeals" [value]="myExpenseDraftDetails.tuesdayMeals" (change)="setMeals($event, 'tues')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.tuesdayMeals" matSuffix mat-icon-button aria-label="Clear" (click)="resetMeals('tues')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Phone</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="tuesdayPhone" [value]="myExpenseDraftDetails.tuesdayPhone" (change)="setPhone($event, 'tues')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.tuesdayPhone" matSuffix mat-icon-button aria-label="Clear" (click)="resetPhone('tues')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Other</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="tuesdayOther" [value]="myExpenseDraftDetails.tuesdayOther" (change)="setOther($event, 'tues')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.tuesdayOther" matSuffix mat-icon-button aria-label="Clear" (click)="resetOther('tues')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><span matPrefix>$</span>{{myExpenseDraftDetails.tuesdayExpenses | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myExpenseDraftDetails.wednesdayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Wednesday</td>
+                                        <td>
+                                            <mat-form-field>
+                                                <mat-label>Hotel</mat-label>
+                                                <span matPrefix>$</span>
+                                                <input matInput type="number" formControlName="wednesdayHotel" [value]="myExpenseDraftDetails.wednesdayHotel" (change)="setHotel($event, 'wed')">
+                                                <button mat-button *ngIf="myExpenseDraftDetails.wednesdayHotel" matSuffix mat-icon-button aria-label="Clear" (click)="resetHotel('wed')">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>                                            
+                                            </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Travel</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="wednesdayTravel" [value]="myExpenseDraftDetails.wednesdayTravel" (change)="setTravel($event, 'wed')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.wednesdayTravel" matSuffix mat-icon-button aria-label="Clear" (click)="resetTravel('wed')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Marketing</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="wednesdayMarketing" [value]="myExpenseDraftDetails.wednesdayMarketing" (change)="setMarketing($event, 'wed')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.wednesdayMarketing" matSuffix mat-icon-button aria-label="Clear" (click)="resetMarketing('wed')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><table class="table-plain"><tbody><tr><td><mat-form-field>
+                                            <mat-label>Miles</mat-label>
+                                            <input matInput type="number" formControlName="wednesdayMiles" [value]="myExpenseDraftDetails.wednesdayMiles" (change)="setMileage($event, 'wed')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.wednesdayMiles" matSuffix mat-icon-button aria-label="Clear" (click)="resetMiles('wed')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>
+                                        </mat-form-field></td></tr><tr><td>
+                                            x {{mileageRate}} = $<b>{{myExpenseDraftDetails.wednesdayMileage | number:'1.2-2'}}</b>
+                                        </td></tr>
+                                        </tbody></table></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Meals</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="wednesdayMeals" [value]="myExpenseDraftDetails.wednesdayMeals" (change)="setMeals($event, 'wed')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.wednesdayMeals" matSuffix mat-icon-button aria-label="Clear" (click)="resetMeals('wed')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Phone</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="wednesdayPhone" [value]="myExpenseDraftDetails.wednesdayPhone" (change)="setPhone($event, 'wed')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.wednesdayPhone" matSuffix mat-icon-button aria-label="Clear" (click)="resetPhone('wed')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Other</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="wednesdayOther" [value]="myExpenseDraftDetails.wednesdayOther" (change)="setOther($event, 'wed')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.wednesdayOther" matSuffix mat-icon-button aria-label="Clear" (click)="resetOther('wed')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><span matPrefix>$</span>{{myExpenseDraftDetails.wednesdayExpenses | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myExpenseDraftDetails.thursdayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Thursday</td>
+                                        <td>
+                                            <mat-form-field>
+                                                <mat-label>Hotel</mat-label>
+                                                <span matPrefix>$</span>
+                                                <input matInput type="number" formControlName="thursdayHotel" [value]="myExpenseDraftDetails.thursdayHotel" (change)="setHotel($event, 'thur')">
+                                                <button mat-button *ngIf="myExpenseDraftDetails.thursdayHotel" matSuffix mat-icon-button aria-label="Clear" (click)="resetHotel('thur')">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>                                            
+                                            </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Travel</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="thursdayTravel" [value]="myExpenseDraftDetails.thursdayTravel" (change)="setTravel($event, 'thur')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.thursdayTravel" matSuffix mat-icon-button aria-label="Clear" (click)="resetTravel('thur')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Marketing</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="thursdayMarketing" [value]="myExpenseDraftDetails.thursdayMarketing" (change)="setMarketing($event, 'thur')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.thursdayMarketing" matSuffix mat-icon-button aria-label="Clear" (click)="resetMarketing('thur')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><table class="table-plain"><tbody><tr><td><mat-form-field>
+                                            <mat-label>Miles</mat-label>
+                                            <input matInput type="number" formControlName="thursdayMiles" [value]="myExpenseDraftDetails.thursdayMiles" (change)="setMileage($event, 'thur')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.thursdayMiles" matSuffix mat-icon-button aria-label="Clear" (click)="resetMiles('thur')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>
+                                        </mat-form-field></td></tr><tr><td>
+                                            x {{mileageRate}} = $<b>{{myExpenseDraftDetails.thursdayMileage | number:'1.2-2'}}</b>
+                                        </td></tr>
+                                        </tbody></table></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Meals</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="thursdayMeals" [value]="myExpenseDraftDetails.thursdayMeals" (change)="setMeals($event, 'thur')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.thursdayMeals" matSuffix mat-icon-button aria-label="Clear" (click)="resetMeals('thur')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Phone</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="thursdayPhone" [value]="myExpenseDraftDetails.thursdayPhone" (change)="setPhone($event, 'thur')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.thursdayPhone" matSuffix mat-icon-button aria-label="Clear" (click)="resetPhone('thur')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Other</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="thursdayOther" [value]="myExpenseDraftDetails.thursdayOther" (change)="setOther($event, 'thur')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.thursdayOther" matSuffix mat-icon-button aria-label="Clear" (click)="resetOther('thur')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><span matPrefix>$</span>{{myExpenseDraftDetails.thursdayExpenses | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myExpenseDraftDetails.fridayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Friday</td>
+                                        <td>
+                                            <mat-form-field>
+                                                <mat-label>Hotel</mat-label>
+                                                <span matPrefix>$</span>
+                                                <input matInput type="number" formControlName="fridayHotel" [value]="myExpenseDraftDetails.fridayHotel" (change)="setHotel($event, 'fri')">
+                                                <button mat-button *ngIf="myExpenseDraftDetails.fridayHotel" matSuffix mat-icon-button aria-label="Clear" (click)="resetHotel('fri')">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>                                            
+                                            </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Travel</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="fridayTravel" [value]="myExpenseDraftDetails.fridayTravel" (change)="setTravel($event, 'fri')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.fridayTravel" matSuffix mat-icon-button aria-label="Clear" (click)="resetTravel('fri')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Marketing</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="fridayMarketing" [value]="myExpenseDraftDetails.fridayMarketing" (change)="setMarketing($event, 'fri')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.fridayMarketing" matSuffix mat-icon-button aria-label="Clear" (click)="resetMarketing('fri')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><table class="table-plain"><tbody><tr><td><mat-form-field>
+                                            <mat-label>Miles</mat-label>
+                                            <input matInput type="number" formControlName="fridayMiles" [value]="myExpenseDraftDetails.fridayMiles" (change)="setMileage($event, 'fri')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.fridayMiles" matSuffix mat-icon-button aria-label="Clear" (click)="resetMiles('fri')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>
+                                        </mat-form-field></td></tr><tr><td>
+                                            x {{mileageRate}} = $<b>{{myExpenseDraftDetails.fridayMileage | number:'1.2-2'}}</b>
+                                        </td></tr>
+                                        </tbody></table></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Meals</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="fridayMeals" [value]="myExpenseDraftDetails.fridayMeals" (change)="setMeals($event, 'fri')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.fridayMeals" matSuffix mat-icon-button aria-label="Clear" (click)="resetMeals('fri')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Phone</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="fridayPhone" [value]="myExpenseDraftDetails.fridayPhone" (change)="setPhone($event, 'fri')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.fridayPhone" matSuffix mat-icon-button aria-label="Clear" (click)="resetPhone('fri')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Other</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="fridayOther" [value]="myExpenseDraftDetails.fridayOther" (change)="setOther($event, 'fri')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.fridayOther" matSuffix mat-icon-button aria-label="Clear" (click)="resetOther('fri')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><span matPrefix>$</span>{{myExpenseDraftDetails.fridayExpenses | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{myExpenseDraftDetails.saturdayDate | date: 'MM/dd/yyyy'}}</td>
+                                        <td>Saturday</td>
+                                        <td>
+                                            <mat-form-field>
+                                                <mat-label>Hotel</mat-label>
+                                                <span matPrefix>$</span>
+                                                <input matInput type="number" formControlName="saturdayHotel" [value]="myExpenseDraftDetails.saturdayHotel" (change)="setHotel($event, 'sat')">
+                                                <button mat-button *ngIf="myExpenseDraftDetails.saturdayHotel" matSuffix mat-icon-button aria-label="Clear" (click)="resetHotel('sat')">
+                                                    <mat-icon>close</mat-icon>
+                                                </button>                                            
+                                            </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Travel</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="saturdayTravel" [value]="myExpenseDraftDetails.saturdayTravel" (change)="setTravel($event, 'sat')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.saturdayTravel" matSuffix mat-icon-button aria-label="Clear" (click)="resetTravel('sat')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Marketing</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="saturdayMarketing" [value]="myExpenseDraftDetails.saturdayMarketing" (change)="setMarketing($event, 'sat')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.saturdayMarketing" matSuffix mat-icon-button aria-label="Clear" (click)="resetMarketing('sat')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>           
+                                        </mat-form-field></td>
+                                        <td><table class="table-plain"><tbody><tr><td><mat-form-field>
+                                            <mat-label>Miles</mat-label>
+                                            <input matInput type="number" formControlName="saturdayMiles" [value]="myExpenseDraftDetails.saturdayMiles" (change)="setMileage($event, 'sat')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.saturdayMiles" matSuffix mat-icon-button aria-label="Clear" (click)="resetMiles('sat')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>
+                                        </mat-form-field></td></tr><tr><td>
+                                            x {{mileageRate}} = $<b>{{myExpenseDraftDetails.saturdayMileage | number:'1.2-2'}}</b>
+                                        </td></tr>
+                                        </tbody></table></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Meals</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="saturdayMeals" [value]="myExpenseDraftDetails.saturdayMeals" (change)="setMeals($event, 'sat')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.saturdayMeals" matSuffix mat-icon-button aria-label="Clear" (click)="resetMeals('sat')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Phone</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="saturdayPhone" [value]="myExpenseDraftDetails.saturdayPhone" (change)="setPhone($event, 'sat')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.saturdayPhone" matSuffix mat-icon-button aria-label="Clear" (click)="resetPhone('sat')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>
+                                        </mat-form-field></td>
+                                        <td><mat-form-field>
+                                            <mat-label>Other</mat-label>
+                                            <span matPrefix>$</span>
+                                            <input matInput type="number" formControlName="saturdayOther" [value]="myExpenseDraftDetails.saturdayOther" (change)="setOther($event, 'sat')">
+                                            <button mat-button *ngIf="myExpenseDraftDetails.saturdayOther" matSuffix mat-icon-button aria-label="Clear" (click)="resetOther('sat')">
+                                                <mat-icon>close</mat-icon>
+                                            </button>                                        
+                                        </mat-form-field></td>
+                                        <td><span matPrefix>$</span>{{myExpenseDraftDetails.saturdayExpenses | number:'1.2-2'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="9" class="text-right"><b>Weekly Expenses:</b></td>
+                                        <td>{{myExpenseDraftDetails.weeklyTotalExpense | currency}}
+                                            <mat-error *ngIf="hasError('weeklyTotalExpense')">{{getWeeklyExpenseErrorMessage()}}</mat-error></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="9" class="text-right"><b>Less Advance:</b></td>
+                                        <td>{{myExpenseDraftDetails.prepaidExpense | currency}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="9" class="text-right"><b>Amount to Reimburse (Return):</b></td>
+                                        <td>{{(myExpenseDraftDetails.weeklyTotalExpense-myExpenseDraftDetails.prepaidExpense) | currency}}</td>
+                                    </tr>                                
+                                </tbody>
+                            </table>
+                            <mat-card *ngIf="myExpenseDraftDetails.expenseAttachments">
+                                <mat-card-header>
+                                  <mat-card-title>Supported Documents</mat-card-title>
+                                </mat-card-header>
+                                <mat-list dense>
+                                    <mat-list-item *ngFor="let file of myExpenseDraftDetails.expenseAttachments">
+                                        <mat-icon mat-list-icon>attach_file</mat-icon>
+                                        <div mat-line><a href={{file.fileNameWithPath}} target="_blank">{{file.fileName}}</a></div>
+                                        <div mat-line> {{file.created | date: 'MM/dd/yyyy, h:mm a'}} </div>
+                                    </mat-list-item>
+                                </mat-list>
+                            </mat-card>
+                            <div class="row">
+                                <div class="col" style="background-color:transparent;">
+                                    <file-upload class="mb-2 pb-2" formControlName="files"></file-upload>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button mat-raised-button color="primary" [disabled]="!draftForm.valid">Save Expense Draft</button>
+                            <button mat-raised-button color="accent" (click)="openWarningDialog(warningDialog);" [disabled]="!draftForm.valid">Submit Expense</button>
+                            <a mat-raised-button (click)="navigateToViewExpenses()" class="btn btn-link">Back</a>
+                        </div>
+                        <ng-template #warningDialog let-modal>
+                            <div class="modal-header justify-content-center bg-warning">
+                                <h4 class="modal-title">Confirm</h4>
+                            </div>
+                            <div class="modal-body text-center">
+                                <h5>Are you sure you want to submit your expense for weekending {{myExpenseDraftDetails.weekEnding | date : 'MM/dd/yyyy'}}?</h5>
+                            </div>
+                            <div class="modal-footer">
+                                <button mat-button mat-dialog-close class="btn">No</button>
+                                <button mat-button mat-dialog-close class="btn btn-primary"
+                                (click)="submitExpense(draftForm.value)">Yes</button>
+                            </div>
+                        </ng-template>
+                    </form>
+                </ng-template>
+                <ng-template #notFoundBlock>
+                    <div class="alert alert-danger text-center">No Active Assignment Found</div>
+                    <a routerLink="/view-my-expenses" class="btn btn-link"><i class="icofont-double-left"></i>Back</a>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</section>

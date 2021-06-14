@@ -1,0 +1,110 @@
+.expense-container {
+    overflow: auto;
+}
+.btn.btn-link {
+    text-transform:none;
+}
+.btn.btn-link:hover {
+    background-color: #3b96b6;
+    color: #ffffff;
+}
+div.filter-header {
+    font-size: 23px;
+    font-weight: 500;
+    margin: 8px 0px;
+    padding: 10px 0px;
+    color: #000000;
+}
+.container i {
+    font-size: 18px;
+    display: inline-block;
+    line-height: 1;
+    margin-right: 10px;
+}
+.table { 
+    td {
+        .mat-form-field {
+            max-width: 90px !important;
+        }
+        vertical-align: middle;
+        padding: 8px 2px 8px 2px;
+    }
+    td:nth-child(6) {
+        .mat-form-field {
+            margin-bottom: -1.25em;
+        }
+    }    
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0;
+}
+input[type=number] {
+    -moz-appearance:textfield;
+}
+.table-plain tbody tr,
+.table-plain tbody tr:hover,
+.table-plain tbody td {
+    margin: 0px;
+    padding: 0px;
+    background-color:transparent;
+    border:none;
+}
+.expense-container input {
+    /*max-width: 80px;*/
+    padding-left: 0px;
+}
+.col > .mat-form-field {
+    width: 290px;
+}
+div > .mat-raised-button {
+    width: 160px;
+}
+a.mat-raised-button {
+    width: 160px;
+    margin-left: 8px;
+    background-color: #e7e7e7;
+}
+h5 {
+    text-transform: none;
+}
+@media (max-width: 600px) {
+    .btn.btn-link {
+        width: 100%;
+    }
+    div.filter-header {
+        font-size: 20px;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+    }
+    .container i {
+        font-size: 14px;
+        display: inline-block;
+        line-height: 1;
+        margin-right: 6px;
+    }
+    .col > .mat-form-field, div > .mat-raised-button {
+        width: 100%;
+    }
+    th {
+        font-weight: 600 !important;
+        font-size: 0.9em;
+        text-align: left !important;
+        max-width: 300px;
+    }
+    td {
+        font-size: 0.8em;
+        text-align: left;
+    }
+    td:first-child {
+        padding: 6px 6px 0px 0px;
+    }
+    td:not(:first-child) {
+        padding: 6px 6px 6px 0;
+    }
+    .mat-raised-button {
+        margin-top: 6px;
+        margin-left: 0px !important;
+    }
+}

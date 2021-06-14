@@ -1,0 +1,18 @@
+{
+    "env": {
+        "name": "prod"
+    },
+    "logging": {
+        "console": true,
+        "appInsights": false
+    },
+    "ad": {
+        "requireAuth": true,
+        "clientId": "pearl.api.portal",
+        "clientSecret": "FBBE9764-7CE8-4BBF-ACAC-347B951E2CA8"
+    },
+    "apiServer": {
+        "baseUrl": "http://averydata.com/pearlportalapi/api",
+        "timeoutInSeconds":120000
+    }
+}

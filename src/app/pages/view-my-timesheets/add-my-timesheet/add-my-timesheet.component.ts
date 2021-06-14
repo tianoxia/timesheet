@@ -1,0 +1,413 @@
+import { Component, OnInit, Input } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { ActivatedRoute } from '@angular/router';
+import { MatTableDataSource, MatDialog } from '@angular/material';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { first } from 'rxjs/operators';
+
+import { AlertService, DataService } from 'app/_services';
+import { TimesheetTitleResponse, TimesheetRequest, IApiResponse } from 'app/_models';
+
+@Component({
+  selector: 'app-view-my-timesheet',
+  templateUrl: './add-my-timesheet.component.html',
+  styleUrls: ['./add-my-timesheet.component.scss']
+})
+export class AddMyTimesheetComponent implements OnInit {
+  @Input() timesheetForm: FormGroup;
+  timesheetId: number;
+  timesheetTitle: TimesheetTitleResponse;
+  myTimesheetDetails: TimesheetRequest;
+  projectvalue: string;
+  contractorId: number;
+  floatLabelControl = new FormControl('auto');
+
+  public displayedColumns = ['date', 'day', 'startWork', 'lunchOut',
+          'lunchIn', 'endWork', 'totalHours'];
+  public dataSource = new MatTableDataSource<TimesheetRequest>();
+  
+  constructor(public alertService: AlertService,
+    fb: FormBuilder,
+    private dataService: DataService,
+    private route: ActivatedRoute,
+    private dialog: MatDialog,
+    private datePipe: DatePipe,
+    private spinner: NgxSpinnerService) {
+      this.timesheetForm = fb.group({
+        floatLabel: this.floatLabelControl,
+        weekEnding: ['', [Validators.required]],
+        projectName: '',
+        weeklyTotalHours: ''
+      });
+      this.myTimesheetDetails = new TimesheetRequest();
+      this.myTimesheetDetails.mondayStart = '12:00 am';
+      this.myTimesheetDetails.mondayLunchOut = '12:00 am';
+      this.myTimesheetDetails.mondayLunchIn = '12:00 am';
+      this.myTimesheetDetails.mondayEnd = '12:00 am';
+      this.myTimesheetDetails.mondayHours = 0.00;
+      this.myTimesheetDetails.tuesdayStart = '12:00 am';
+      this.myTimesheetDetails.tuesdayLunchOut = '12:00 am';
+      this.myTimesheetDetails.tuesdayLunchIn = '12:00 am';
+      this.myTimesheetDetails.tuesdayEnd = '12:00 am';
+      this.myTimesheetDetails.tuesdayHours = 0.00;
+      this.myTimesheetDetails.wednesdayStart = '12:00 am';
+      this.myTimesheetDetails.wednesdayLunchOut = '12:00 am';
+      this.myTimesheetDetails.wednesdayLunchIn = '12:00 am';
+      this.myTimesheetDetails.wednesdayEnd = '12:00 am';
+      this.myTimesheetDetails.wednesdayHours = 0.00;
+      this.myTimesheetDetails.thursdayStart = '12:00 am';
+      this.myTimesheetDetails.thursdayLunchOut = '12:00 am';
+      this.myTimesheetDetails.thursdayLunchIn = '12:00 am';
+      this.myTimesheetDetails.thursdayEnd = '12:00 am';
+      this.myTimesheetDetails.thursdayHours = 0.00;
+      this.myTimesheetDetails.fridayStart = '12:00 am';
+      this.myTimesheetDetails.fridayLunchOut = '12:00 am';
+      this.myTimesheetDetails.fridayLunchIn = '12:00 am';
+      this.myTimesheetDetails.fridayEnd = '12:00 am';
+      this.myTimesheetDetails.fridayHours = 0.00;
+      this.myTimesheetDetails.saturdayStart = '12:00 am';
+      this.myTimesheetDetails.saturdayLunchOut = '12:00 am';
+      this.myTimesheetDetails.saturdayLunchIn = '12:00 am';
+      this.myTimesheetDetails.saturdayEnd = '12:00 am';
+      this.myTimesheetDetails.saturdayHours = 0.00
+      this.myTimesheetDetails.sundayStart = '12:00 am';
+      this.myTimesheetDetails.sundayLunchOut = '12:00 am';
+      this.myTimesheetDetails.sundayLunchIn = '12:00 am';
+      this.myTimesheetDetails.sundayEnd = '12:00 am';
+      this.myTimesheetDetails.sundayHours = 0.00;
+      this.myTimesheetDetails.weeklyTotalHours = 0.00;
+    }
+
+  ngOnInit() {
+    this.contractorId = this.route.snapshot.queryParams['contractorid'];
+    this.spinner.show();
+    this.loadData();
+  }  
+
+  private loadData() {
+    return this.dataService.getTimesheetTitleInfo(this.contractorId)
+        .subscribe(tsTitleInfo => {
+          this.timesheetTitle = tsTitleInfo[0] as TimesheetTitleResponse;
+          window.scrollTo(0, 0);
+          this.spinner.hide();
+        },
+        error => {
+          this.alertService.error(error);
+          this.spinner.hide();
+        });
+    }
+  
+    setStart(value, day) {  
+      switch (day) {
+        case 'sun':
+          this.myTimesheetDetails.sundayStart = value;
+          this.myTimesheetDetails.sundayHours = this.getWorkingHours(value,
+            this.myTimesheetDetails.sundayLunchOut, this.myTimesheetDetails.sundayLunchIn, this.myTimesheetDetails.sundayEnd);
+          this.updateWeeklyHours();
+          break;
+        case 'mon':
+          this.myTimesheetDetails.mondayStart = value;
+          this.myTimesheetDetails.mondayHours = this.getWorkingHours(value,
+            this.myTimesheetDetails.mondayLunchOut, this.myTimesheetDetails.mondayLunchIn, this.myTimesheetDetails.mondayEnd);
+          this.updateWeeklyHours();
+          break;
+        case 'tues':
+          this.myTimesheetDetails.tuesdayStart = value;
+          this.myTimesheetDetails.tuesdayHours = this.getWorkingHours(value,
+            this.myTimesheetDetails.tuesdayLunchOut, this.myTimesheetDetails.tuesdayLunchIn, this.myTimesheetDetails.tuesdayEnd);
+          break;
+        case 'wed':
+          this.myTimesheetDetails.wednesdayStart = value;
+          this.myTimesheetDetails.wednesdayHours = this.getWorkingHours(value,
+            this.myTimesheetDetails.wednesdayLunchOut, this.myTimesheetDetails.wednesdayLunchIn, this.myTimesheetDetails.wednesdayEnd);
+          this.updateWeeklyHours();  
+          break;
+        case 'thur':
+          this.myTimesheetDetails.thursdayStart = value;
+          this.myTimesheetDetails.thursdayHours = this.getWorkingHours(value,
+            this.myTimesheetDetails.thursdayLunchOut, this.myTimesheetDetails.thursdayLunchIn, this.myTimesheetDetails.thursdayEnd);
+          break;
+        case 'fri':
+          this.myTimesheetDetails.fridayStart = value;
+          this.myTimesheetDetails.fridayHours = this.getWorkingHours(value,
+            this.myTimesheetDetails.fridayLunchOut, this.myTimesheetDetails.fridayLunchIn, this.myTimesheetDetails.fridayEnd);
+          this.updateWeeklyHours();
+          break;
+        case 'sat':
+          this.myTimesheetDetails.saturdayStart = value;
+          this.myTimesheetDetails.saturdayHours = this.getWorkingHours(value,
+            this.myTimesheetDetails.saturdayLunchOut, this.myTimesheetDetails.saturdayLunchIn, this.myTimesheetDetails.saturdayEnd);
+          this.updateWeeklyHours();
+          break;
+      }
+    }
+    setLunchOut(value, day) {
+      switch (day) {
+        case 'sun':
+          this.myTimesheetDetails.sundayLunchOut = value;
+          this.myTimesheetDetails.sundayHours = this.getWorkingHours(this.myTimesheetDetails.sundayStart,
+            value, this.myTimesheetDetails.sundayLunchIn, this.myTimesheetDetails.sundayEnd);
+          break;
+        case 'mon':
+          this.myTimesheetDetails.mondayLunchOut = value;
+          this.myTimesheetDetails.mondayHours = this.getWorkingHours(this.myTimesheetDetails.mondayStart, 
+            value, this.myTimesheetDetails.mondayLunchIn, this.myTimesheetDetails.mondayEnd);
+            this.updateWeeklyHours();
+            break;
+        case 'tues':
+          this.myTimesheetDetails.tuesdayLunchOut = value;
+          this.myTimesheetDetails.tuesdayHours = this.getWorkingHours(this.myTimesheetDetails.tuesdayStart, 
+            value, this.myTimesheetDetails.tuesdayLunchIn, this.myTimesheetDetails.tuesdayEnd);
+            this.updateWeeklyHours();
+            break;
+        case 'wed':
+          this.myTimesheetDetails.wednesdayLunchOut = value;
+          this.myTimesheetDetails.wednesdayHours = this.getWorkingHours(this.myTimesheetDetails.wednesdayStart,
+            value, this.myTimesheetDetails.wednesdayLunchIn, this.myTimesheetDetails.wednesdayEnd);
+            this.updateWeeklyHours();
+            break;
+        case 'thur':
+          this.myTimesheetDetails.thursdayLunchOut = value;
+          this.myTimesheetDetails.thursdayHours = this.getWorkingHours(this.myTimesheetDetails.thursdayStart, 
+            value, this.myTimesheetDetails.thursdayLunchIn, this.myTimesheetDetails.thursdayEnd);
+            this.updateWeeklyHours();
+            break;
+        case 'fri':
+          this.myTimesheetDetails.fridayLunchOut = value;
+          this.myTimesheetDetails.fridayHours = this.getWorkingHours(this.myTimesheetDetails.fridayStart, 
+            value, this.myTimesheetDetails.fridayLunchIn, this.myTimesheetDetails.fridayEnd);
+            this.updateWeeklyHours();
+            break;
+        case 'sat':
+          this.myTimesheetDetails.saturdayLunchOut = value;
+          this.myTimesheetDetails.saturdayHours = this.getWorkingHours(this.myTimesheetDetails.saturdayStart, 
+            value, this.myTimesheetDetails.saturdayLunchIn, this.myTimesheetDetails.saturdayEnd);
+            this.updateWeeklyHours();
+            break;
+      }
+    }
+
+    setLunchIn(value, day) {  
+      switch (day) {
+        case 'sun':
+          this.myTimesheetDetails.sundayLunchIn = value;
+          this.myTimesheetDetails.sundayHours = this.getWorkingHours(this.myTimesheetDetails.sundayStart,
+            this.myTimesheetDetails.sundayLunchOut, value, this.myTimesheetDetails.sundayEnd);
+            this.updateWeeklyHours();
+            break;
+        case 'mon':
+          this.myTimesheetDetails.mondayLunchIn = value;
+          this.myTimesheetDetails.mondayHours = this.getWorkingHours(this.myTimesheetDetails.mondayStart, 
+            this.myTimesheetDetails.mondayLunchOut, value, this.myTimesheetDetails.mondayEnd);
+            this.updateWeeklyHours();
+            break;
+        case 'tues':
+          this.myTimesheetDetails.tuesdayLunchIn = value;
+          this.myTimesheetDetails.tuesdayHours = this.getWorkingHours(this.myTimesheetDetails.tuesdayStart, 
+            this.myTimesheetDetails.tuesdayLunchOut, value, this.myTimesheetDetails.tuesdayEnd);
+            this.updateWeeklyHours();
+            break;
+        case 'wed':
+          this.myTimesheetDetails.wednesdayLunchIn = value;
+          this.myTimesheetDetails.wednesdayHours = this.getWorkingHours(this.myTimesheetDetails.wednesdayStart,
+            this.myTimesheetDetails.wednesdayLunchOut, value, this.myTimesheetDetails.wednesdayEnd);
+          this.updateWeeklyHours();
+          break;
+        case 'thur':
+          this.myTimesheetDetails.thursdayLunchIn = value;
+          this.myTimesheetDetails.thursdayHours = this.getWorkingHours(this.myTimesheetDetails.thursdayStart, 
+            this.myTimesheetDetails.thursdayLunchOut, value, this.myTimesheetDetails.thursdayEnd);
+          this.updateWeeklyHours();
+          break;
+        case 'fri':
+          this.myTimesheetDetails.fridayLunchIn = value;
+          this.myTimesheetDetails.fridayHours = this.getWorkingHours(this.myTimesheetDetails.fridayStart, 
+            this.myTimesheetDetails.fridayLunchOut, value, this.myTimesheetDetails.fridayEnd);
+          this.updateWeeklyHours();
+          break;
+        case 'sat':
+          this.myTimesheetDetails.saturdayLunchIn = value;
+          this.myTimesheetDetails.saturdayHours = this.getWorkingHours(this.myTimesheetDetails.saturdayStart, 
+            this.myTimesheetDetails.saturdayLunchOut, value, this.myTimesheetDetails.saturdayEnd);
+          this.updateWeeklyHours();
+          break;
+      }
+    }
+
+    setEnd(value, day) {  
+      switch (day) {
+        case 'sun':
+          this.myTimesheetDetails.sundayEnd = value;
+          this.myTimesheetDetails.sundayHours = this.getWorkingHours(this.myTimesheetDetails.sundayStart,
+            this.myTimesheetDetails.sundayLunchOut, this.myTimesheetDetails.sundayLunchIn, value);
+          this.updateWeeklyHours();
+          break;
+        case 'mon':
+          this.myTimesheetDetails.mondayEnd = value;
+          this.myTimesheetDetails.mondayHours = this.getWorkingHours(this.myTimesheetDetails.mondayStart, 
+            this.myTimesheetDetails.mondayLunchOut, this.myTimesheetDetails.mondayLunchIn, value);
+          this.updateWeeklyHours();
+          break;
+        case 'tues':
+          this.myTimesheetDetails.tuesdayEnd = value;
+          this.myTimesheetDetails.tuesdayHours = this.getWorkingHours(this.myTimesheetDetails.tuesdayStart, 
+            this.myTimesheetDetails.tuesdayLunchOut, this.myTimesheetDetails.tuesdayLunchIn, value);
+          this.updateWeeklyHours();
+          break;
+        case 'wed':
+          this.myTimesheetDetails.wednesdayEnd = value;
+          this.myTimesheetDetails.wednesdayHours = this.getWorkingHours(this.myTimesheetDetails.wednesdayStart,
+            this.myTimesheetDetails.wednesdayLunchOut, this.myTimesheetDetails.wednesdayLunchIn, value);
+          this.updateWeeklyHours();
+          break;
+        case 'thur':
+          this.myTimesheetDetails.thursdayEnd = value;
+          this.myTimesheetDetails.thursdayHours = this.getWorkingHours(this.myTimesheetDetails.thursdayStart, 
+            this.myTimesheetDetails.thursdayLunchOut, this.myTimesheetDetails.thursdayLunchIn, value);
+          this.updateWeeklyHours();
+          break;
+        case 'fri':
+          this.myTimesheetDetails.fridayEnd = value;
+          this.myTimesheetDetails.fridayHours = this.getWorkingHours(this.myTimesheetDetails.fridayStart, 
+            this.myTimesheetDetails.fridayLunchOut, this.myTimesheetDetails.fridayLunchIn, value);
+          this.updateWeeklyHours();
+          break;
+        case 'sat':
+          this.myTimesheetDetails.saturdayEnd = value;
+          this.myTimesheetDetails.saturdayHours = this.getWorkingHours(this.myTimesheetDetails.saturdayStart, 
+            this.myTimesheetDetails.saturdayLunchOut, this.myTimesheetDetails.saturdayLunchIn, value);
+          this.updateWeeklyHours();
+          break;
+      }
+    }
+
+    private updateWeeklyHours(): void {
+      this.myTimesheetDetails.weeklyTotalHours = this.myTimesheetDetails.sundayHours + this.myTimesheetDetails.mondayHours
+      + this.myTimesheetDetails.tuesdayHours + this.myTimesheetDetails.wednesdayHours + this.myTimesheetDetails.thursdayHours
+      + this.myTimesheetDetails.fridayHours + this.myTimesheetDetails.saturdayHours;
+      if (this.myTimesheetDetails.weeklyTotalHours === 0) {
+        this.timesheetForm.controls.weeklyTotalHours.setErrors({lessThanMin: true});
+      } else {
+        this.timesheetForm.controls.weeklyTotalHours.setErrors(null);
+      }
+    }
+  
+submitTimesheet() {
+  const request = this.myTimesheetDetails;
+  request.isDraft = false;
+  request.assignmentId = this.timesheetTitle.assignmentId;
+  request.contractorId = this.timesheetTitle.contractorId;
+  request.weekEnding = this.timesheetForm.controls.weekEnding.value;
+  request.projectName = this.timesheetForm.controls.projectName.value;
+  this.dataService.createTimesheet(request)
+  .pipe(first())
+  .subscribe((response: IApiResponse) => {
+    this.alertService.success(response.message);
+    window.scrollTo(0, 0);
+    this.spinner.hide();
+  },
+  error => {
+    window.scrollTo(0, 0);
+    this.alertService.error(error);
+    this.spinner.hide();
+  });  
+  return false;
+}
+  private getWorkingHours(start, lunchout, lunchin, end): number {
+    let sum = 0;
+    if (!this.isInitialized(start, lunchout, lunchin, end))
+    {
+      const endtime  = new Date('01/01/2014' + " " + end) as any;
+      const starttime = new Date('01/01/2014' + " " + start) as any;
+      const lunchouttime = new Date('01/01/2014' + " " + lunchout) as any;
+      const lunchintime = new Date('01/01/2014' + " " + lunchin) as any;
+      if (endtime > starttime)
+        sum = Math.abs(endtime - starttime + (lunchouttime - lunchintime))/3600000 as number;
+      else if (endtime < starttime)
+        sum = 24-Math.abs(endtime - starttime + (lunchouttime - lunchintime))/3600000 as number;
+    }
+    return Math.round(sum*100)/100; //round to 2 decimal places
+  }
+
+  private isInitialized(start, lunchout, lunchin, end): boolean {
+    return (start == "00:00 AM" && lunchout == "00:00 AM" && lunchin == "00:00 AM" && end == "00:00 AM"); 
+  }
+
+  addEvent(type: string, event: MatDatepickerInputEvent<Date>) {
+    if (event.value.getDay() === 6) {
+      this.timesheetForm.controls.weekEnding.setErrors(null);
+      this.myTimesheetDetails.weekEnding = this.myTimesheetDetails.saturdayDate = new Date(event.value);
+      this.myTimesheetDetails.mondayDate = new Date(event.value);
+      this.myTimesheetDetails.mondayDate.setDate(this.myTimesheetDetails.mondayDate.getDate() - 5);
+      this.myTimesheetDetails.tuesdayDate = new Date(event.value);
+      this.myTimesheetDetails.tuesdayDate.setDate(this.myTimesheetDetails.tuesdayDate.getDate() - 4);
+      this.myTimesheetDetails.wednesdayDate = new Date(event.value);
+      this.myTimesheetDetails.wednesdayDate.setDate(this.myTimesheetDetails.wednesdayDate.getDate() - 3);
+      this.myTimesheetDetails.thursdayDate = new Date(event.value);
+      this.myTimesheetDetails.thursdayDate.setDate(this.myTimesheetDetails.thursdayDate.getDate() - 2);
+      this.myTimesheetDetails.fridayDate = new Date(event.value);
+      this.myTimesheetDetails.fridayDate.setDate(this.myTimesheetDetails.fridayDate.getDate() - 1);
+      this.myTimesheetDetails.sundayDate = new Date(event.value);
+      this.myTimesheetDetails.sundayDate.setDate(this.myTimesheetDetails.sundayDate.getDate() - 6);
+    } else {
+      this.timesheetForm.controls.weekEnding.setErrors({notSaturday: true});
+      return false;
+    }
+    let oneWeekLater: Date = new Date();
+    const sevenDays=new Date().getDate()+7;
+    if (this.myTimesheetDetails.saturdayDate>new Date(oneWeekLater.setDate(sevenDays))) {
+      this.timesheetForm.controls.weekEnding.setErrors({exceedAllowedDateRange: true});
+      return false;
+    }
+    this.spinner.show();
+    this.dataService.timesheetExists(this.timesheetTitle.assignmentId, this.datePipe.transform(this.myTimesheetDetails.weekEnding, 'yyyy-MM-dd'))
+    .subscribe((response: boolean) => {
+      if (response) {
+        this.timesheetForm.controls.weekEnding.setErrors({timesheetExists: true});
+      }
+      this.spinner.hide();
+    },
+    error => {
+      window.scrollTo(0, 0);
+      this.alertService.error(error);
+      this.spinner.hide();
+    });
+    return false;
+  }
+
+  public hasError = (controlName: string) => {
+    return this.timesheetForm.controls[controlName].hasError;
+  }
+
+  getWeekEndingErrorMessage() {
+    if (this.timesheetForm.get('weekEnding').hasError('required')) {
+      return 'You must enter a week ending date';
+    } else if (this.timesheetForm.get('weekEnding').hasError('exceedAllowedDateRange')) {
+      return 'Please enter a Week Ending Date within the next 7 days.';
+    } else if (this.timesheetForm.get('weekEnding').hasError('timesheetExists')) {
+      return 'You already Submitted Timesheet for this Week Ending.';
+    }
+    return  this.timesheetForm.get('weekEnding').hasError('notSaturday') ? 'Week ending date must be a Saturday date' : '';
+  }
+
+  getWeeklyHoursErrorMessage() {
+    if (this.timesheetForm.controls.weeklyTotalHours.hasError('lessThanMin')) {
+      return 'Weekly hours must be greater than 0';
+    }    
+  }
+
+  openWarningDialog(warningDialog) {
+    if (this.myTimesheetDetails.weeklyTotalHours === 0) {
+      this.timesheetForm.controls.weeklyTotalHours.setErrors({lessThanMin: true});
+      return;
+    }
+    this.dialog.open(warningDialog, {
+      autoFocus: true,
+      width: '400px',
+      disableClose: true
+    });
+    return false;
+  }
+}

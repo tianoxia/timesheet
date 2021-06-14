@@ -1,0 +1,190 @@
+<section class="services-area ptb-100 bg-gray">
+    <div class="container">
+        <app-alert class="row mt-1 pt-1"></app-alert>
+        <div fxLayout fxLayoutAlign="center center" class="filter-header">
+            My Expenses
+        </div>
+        <div class="mt-2 pt-2">
+            <mat-tab-group mat-align-tabs="center" [(selectedIndex)]="selectedIndex">
+                <mat-tab label="Expense Drafts">
+                    <div class="single-services">
+                        <div class="row">
+                            <div class="icon pr-2 mr-2 mb-1 pb-1">
+                                <i class="icofont-clock-time"></i>
+                            </div>
+                            <div><h3>My Drafts</h3></div>
+                        </div>
+                        <div class="row action-buttons"><a routerLink="/add-my-expense-draft" [queryParams]="{contractorid:contractorId,mileagerate:mileageRate}" class="btn btn-sm btn-success mb-2 p-3"><i class="icofont-meeting-add"></i> Add Draft</a></div>
+                        <div *ngIf="myDrafts.data.length > 0; then hasDraftBlock else noDraftBlock" class="expense_grid"></div>
+                        <ng-template #noDraftBlock><div class="expense-container alert alert-danger text-center">No Draft Found</div></ng-template>
+                        <ng-template #hasDraftBlock>
+                            <!-- <mat-form-field>
+                                <input
+                                  matInput
+                                  (keyup)="applyFilterOne($event.target.value)"
+                                  placeholder="Search"
+                                />
+                            </mat-form-field> -->
+                            <div class="expense-container mat-elevation-z8">
+                                <table mat-table [dataSource]="myDrafts" matSort #table1>
+                                    <ng-container matColumnDef="weekEnding" sticky>
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Week Ending</th>
+                                        <td mat-cell *matCellDef="let draft"><a routerLink="" (click)="navigateToDraftDetail(draft)"><span class="nav-link">{{draft.weekEnding | date: 'MM/dd/yyyy'}}</span></a></td>
+                                    </ng-container>
+                                
+                                    <ng-container matColumnDef="client">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Client</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.clientName}}</td>
+                                    </ng-container>
+                
+                                    <ng-container matColumnDef="location">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Location</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.location}}</td>
+                                    </ng-container>
+                
+                                    <ng-container matColumnDef="projectName">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Reason</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.projectName}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="mondayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Monday Expenses</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.mondayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+                
+                                    <ng-container matColumnDef="tuesdayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Tuesday Expenses</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.tuesdayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="wednesdayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Wednesday Expenses</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.wednesdayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+                
+                                    <ng-container matColumnDef="thursdayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Thursday Expenses</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.thursdayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="fridayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Friday Expenses</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.fridayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+                
+                                    <ng-container matColumnDef="saturdayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Saturday Expenses</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.saturdayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="sundayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Sunday Expenses</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.sundayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="weeklyExpense">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Weekly Expenses</th>
+                                        <td mat-cell *matCellDef="let draft">{{draft.weeklyExpense | number:'1.2-2'}}</td>
+                                    </ng-container>
+                                    <tr mat-header-row *matHeaderRowDef="displayedDraftColumns; sticky: true"></tr>
+                                    <tr mat-row *matRowDef="let row; columns: displayedDraftColumns;"></tr>
+                                </table>
+                            </div>                      
+                        </ng-template>
+                        <mat-paginator #TableOnePaginator="matPaginator" [pageSize]="10" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons> 
+                        </mat-paginator>
+                    </div>
+                </mat-tab>
+                <mat-tab label="Submitted Expenses">
+                    <div class="single-services">
+                        <div class="row">
+                            <div class="icon pr-2 mr-2 mb-1 pb-1">
+                                <i class="icofont-list"></i>
+                            </div>
+                            <div><h3>Submitted Expenses</h3></div>
+                        </div>
+                        <div class="row action-buttons"><a routerLink="/add-my-expense" [queryParams]="{contractorid:contractorId,mileagerate:mileageRate}" class="btn btn-sm btn-success mb-2 p-3"><i class="icofont-plus"></i> Add Expense</a></div>
+                        <div *ngIf="myExpenses.data.length > 0; then hasExpenseBlock else noExpenseBlock" class="expense_grid"></div>
+                        <ng-template #noExpenseBlock>
+                            <div class="expense-container alert alert-danger text-center">No Expense Found</div>
+                        </ng-template>
+                        <ng-template #hasExpenseBlock>
+                            <div class="expense-container mat-elevation-z8">
+                                <table mat-table [dataSource]="myExpenses" matSort #table2>
+                                    <ng-container matColumnDef="weekEnding" sticky>
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Week Ending</th>
+                                        <td mat-cell *matCellDef="let expense"><a routerLink="" (click)="navigateToExpenseDetail(expense)"><span class="nav-link">{{expense.weekEnding | date: 'MM/dd/yyyy'}}</span></a></td>
+                                    </ng-container>
+                                
+                                    <ng-container matColumnDef="client">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Client</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.clientName}}</td>
+                                    </ng-container>
+                
+                                    <ng-container matColumnDef="location">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Location</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.location}}</td>
+                                    </ng-container>
+                
+                                    <ng-container matColumnDef="projectName">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Reason</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.projectName}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="mondayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Monday Expenses</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.mondayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+                
+                                    <ng-container matColumnDef="tuesdayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Tuesday Expenses</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.tuesdayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="wednesdayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Wednesday Expenses</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.wednesdayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+                
+                                    <ng-container matColumnDef="thursdayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Thursday Expenses</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.thursdayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="fridayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Friday Expenses</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.fridayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+                
+                                    <ng-container matColumnDef="saturdayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Saturday Expenses</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.saturdayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="sundayExpenses">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Sunday Expenses</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.sundayExpenses | number:'1.2-2'}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="weeklyExpense">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Weekly Expenses</th>
+                                        <td mat-cell *matCellDef="let expense">{{expense.weeklyExpense | number:'1.2-2'}}</td>
+                                    </ng-container>
+
+                                    <ng-container matColumnDef="status" hidden>
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                                        <td mat-cell *matCellDef="let expense" [style.color]="expense.expenseStatus == 'Rejected' ? 'red' : ''">{{expense.expenseStatus}}</td>
+                                    </ng-container>
+                                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                                </table>
+                            </div>                         
+                        </ng-template>
+                        <mat-paginator #TableTwoPaginator="matPaginator" [pageSize]="10" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons>
+                        </mat-paginator>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+    </div>
+</section>
