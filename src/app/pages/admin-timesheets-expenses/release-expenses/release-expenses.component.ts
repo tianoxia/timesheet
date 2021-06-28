@@ -10,8 +10,7 @@ import { forkJoin } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { DataService, AlertService } from 'app/_services';
-import { ExpenseRecordsResponse, IApiResponse,
-  Contractor, ExpenseResponse } from 'app/_models';
+import { ExpenseRecordsResponse, IApiResponse, Contractor } from 'app/_models';
 
 @Component({
   selector: 'app-release-expenses',

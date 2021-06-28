@@ -4,8 +4,8 @@ import { DatePipe } from '@angular/common';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material';
-import {MatDatepickerInputEvent} from '@angular/material/datepicker';
-import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 import { FileUploadValidators } from '@iplab/ngx-file-upload';
 
