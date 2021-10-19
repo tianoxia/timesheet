@@ -12,7 +12,7 @@ import { LoginResponse } from 'app/_models';
   styleUrls: ['./header-menu.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class HeaderMenuComponent implements OnInit, OnDestroy {
+export class HeaderMenuComponent implements OnInit {
   contractorName: string;
   public flag: boolean;
   @ViewChild('accountsContainer', {
@@ -37,6 +37,7 @@ export class HeaderMenuComponent implements OnInit, OnDestroy {
   currentIsHomePage() {
     return (this.stripParamPipe.transform(this.router.url) === '/');
   }
+  
   public isLoggedIn() {
     let loggedInUser: LoginResponse = null;
     if (this.authService.currentUserValue) {
@@ -44,21 +45,17 @@ export class HeaderMenuComponent implements OnInit, OnDestroy {
       if (loggedInUser && loggedInUser.accessToken && this.validateService.isUserTokenValid(loggedInUser.accessToken)) {
         this.contractorName = loggedInUser.contractorName;
       } else {
-        this.authService.logout();
+        this.logout(true);
       }
     }
     return loggedInUser === null ? false : true;
   }
-  public logout() {
+  public logout(isTokenExpired: boolean) {
       this.authService.logout();
-      this.router.navigate(['home']);
-      if (this.accountsViewContainerRef) {
-        this.accountsViewContainerRef.remove();
+      if (isTokenExpired) {
+        this.router.navigate(['login'], { queryParams: { sessionTimeOut: true }, skipLocationChange: false });
+      } else {
+        this.router.navigate(['home']);
       }
-  }
-  ngOnDestroy() {
-    if (this.accountsViewContainerRef) {
-      this.accountsViewContainerRef.remove();
-    }
   }
 }

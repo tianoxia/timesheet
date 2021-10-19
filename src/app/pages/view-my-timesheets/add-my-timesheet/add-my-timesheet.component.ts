@@ -236,7 +236,7 @@ export class AddMyTimesheetComponent implements OnInit {
       }
     }
 
-    setEnd(value, day) {  
+    setEnd(value, day) {
       switch (day) {
         case 'sun':
           this.myTimesheetDetails.sundayEnd = value;

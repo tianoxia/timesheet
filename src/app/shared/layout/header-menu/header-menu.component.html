@@ -6,7 +6,7 @@
                     <div class="header-row">
                         <div class="header-logo">
                             <a title="OnlinePortal" routerLink="/">
-                                <img id="headerlogo" alt="OnlinePortal" width="302" height="48" data-sticky-width="82" data-sticky-height="40" data-sticky-top="25" src="assets/logo/averypearllogo.gif">
+                                <img id="headerlogo" alt="OnlinePortal" width="168" height="80" data-sticky-width="82" data-sticky-height="40" data-sticky-top="25" src="assets/logo/averypearl-tslogo.png">
                             </a>
                         </div>
                     </div>
@@ -26,7 +26,7 @@
                                 <div class="dropdown-menu" style="width: 100%; position: absolute; transform: translate3d(0px, 42px, 0px); top: 0px; left: 0px; will-change: transform;" x-placement="bottom-start">
                                     <a class="dropdown-item" routerLink="/home"><i class="fa fa-user-circle-o" aria-hidden="true"></i>&nbsp;My Profile</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" routerLink="" (click)="logout();">
+                                    <a class="dropdown-item" routerLink="" (click)="logout(false);">
                                         <i class="fas fa-sign-out-alt" aria-hidden="true"></i>&nbsp;Sign Out</a>
                                 </div>
                             </div>
@@ -73,7 +73,7 @@
                             <button class="btn header-btn-signin-nav" *ngIf="!isLoggedIn() && !currentIsApprovalPage()" routerLink="/login" title="Sign In">
                                 <i class="icofont-lock"></i>
                             </button>
-                            <button *ngIf="isLoggedIn() && !currentIsApprovalPage()" class="btn header-btn-signout-nav" (click)="logout();" title="Sign Out">
+                            <button *ngIf="isLoggedIn() && !currentIsApprovalPage()" class="btn header-btn-signout-nav" (click)="logout(false);" title="Sign Out">
                                 <i class="icofont-sign-out"></i>
                             </button>                                                        
                             <button *ngIf="isLoggedIn() && !currentIsApprovalPage()" class="btn header-btn-user-nav" routerLink="/account-profile" title="View Profile">
