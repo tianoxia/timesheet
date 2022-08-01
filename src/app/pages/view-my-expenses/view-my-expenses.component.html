@@ -1,16 +1,18 @@
 <section class="services-area ptb-100 bg-gray">
     <div class="container">
         <app-alert class="row mt-1 pt-1"></app-alert>
-        <div fxLayout fxLayoutAlign="center center" class="filter-header">
-            My Expenses
+        <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="2%">
+            <div fxLayout fxLayoutAlign="center center" class="filter-header">
+                My Expenses
+            </div>
         </div>
-        <div class="mt-2 pt-2">
-            <mat-tab-group mat-align-tabs="center" [(selectedIndex)]="selectedIndex">
+        <div class="expense-list mt-2 pt-2">
+            <mat-tab-group [(selectedIndex)]="selectedIndex">
                 <mat-tab label="Expense Drafts">
                     <div class="single-services">
                         <div class="row">
                             <div class="icon pr-2 mr-2 mb-1 pb-1">
-                                <i class="icofont-clock-time"></i>
+                                <i class="icofont-price"></i>
                             </div>
                             <div><h3>My Drafts</h3></div>
                         </div>

@@ -172,7 +172,7 @@ export class ReleaseExpensesComponent implements OnInit {
   }
 
   navigateToDraftDetail(draft: ExpenseRecordsResponse) {
-    this.router.navigate(['/view-my-draft'],
+    this.router.navigate(['/view-my-expense-draft'],
     { queryParams: { expenseid: draft.expenseId, releaseexpense: true }, skipLocationChange: false });
   }
 

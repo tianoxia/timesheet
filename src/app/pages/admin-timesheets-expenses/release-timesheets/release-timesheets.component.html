@@ -1,11 +1,13 @@
 <section class="services-area ptb-100 bg-gray">
     <div class="container">
         <app-alert class="row mt-1 pt-1"></app-alert>
-        <div fxLayout fxLayoutAlign="center center" class="filter-header">
-            Admin Timesheets
+        <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="2%">
+            <div fxLayout fxLayoutAlign="center center" class="filter-header">
+                Admin Timesheets
+            </div>
         </div>
-        <div class="mt-2 pt-2">
-            <mat-tab-group mat-align-tabs="center" [(selectedIndex)]="selectedIndex">
+        <div class="mt-1 pt-1">
+            <mat-tab-group [(selectedIndex)]="selectedIndex">
                 <mat-tab label="Timesheet Drafts">
                     <div class="single-services">
                         <div class="row">

@@ -94,7 +94,7 @@ export class LoginComponent implements OnInit {
           const request = new LoginRequest();
           request.userName = this.loginForm.controls.email.value;
           request.password = this.loginForm.controls.password.value;
-          request.portalType = "Timesheet";
+          request.portalType = 'Timesheet';
           request.browser = window.navigator.userAgent;
           return request;
         }

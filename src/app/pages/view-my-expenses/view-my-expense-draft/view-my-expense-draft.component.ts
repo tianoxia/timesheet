@@ -531,7 +531,7 @@ export class ViewMyExpenseDraftComponent implements OnInit {
     }
 
     private updateWeeklyExpenses(): void {
-      this.myExpenseDraftDetails.weeklyTotalExpense + this.myExpenseDraftDetails.mondayExpenses
+      this.myExpenseDraftDetails.weeklyTotalExpense = this.myExpenseDraftDetails.sundayExpenses + this.myExpenseDraftDetails.mondayExpenses
       + this.myExpenseDraftDetails.tuesdayExpenses + this.myExpenseDraftDetails.wednesdayExpenses + this.myExpenseDraftDetails.thursdayExpenses
       + this.myExpenseDraftDetails.fridayExpenses + this.myExpenseDraftDetails.saturdayExpenses;
       if (this.myExpenseDraftDetails.weeklyTotalExpense === 0) {

@@ -10,7 +10,7 @@ export class ExpenseResponse {
     contractorId: number;
     weekEnding: Date;
     projectName: string;
-    prePaidExpense: number;
+    prePaidExpense: number | 0;
     mondayDate: Date;
     tuesdayDate: Date;
     wednesdayDate: Date;

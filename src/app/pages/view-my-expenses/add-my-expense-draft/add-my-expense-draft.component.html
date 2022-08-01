@@ -19,27 +19,23 @@
                         <div class="col-md-6">Location: {{expenseTitle.location}}</div>
                     </div>
                     <form [formGroup]="draftForm" autocomplete="off" novalidate (ngSubmit)="submitDraft(draftForm.value)">
-                        <div class="row">
-                            <div class="col">
-                                <mat-form-field appearance="fill">
-                                    <mat-label>Week Ending</mat-label>
-                                    <input matInput [matDatepicker]="picker1" formControlName="weekEnding" 
-                                         (dateChange)="addEvent('change', $event)">
-                                    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-                                    <mat-datepicker #picker1></mat-datepicker>
-                                    <mat-error *ngIf="hasError('weekEnding')">{{getWeekEndingErrorMessage()}}</mat-error>
-                                </mat-form-field>                            
-                            </div>
-                            <div class="col">
-                                <mat-form-field appearance="fill">
-                                    <mat-label>Prepaid Expense</mat-label>
-                                    <span matPrefix>$&nbsp;</span>
-                                    <input matInput type="number" formControlName="prepaidExpense" [value]="myExpenseDraftDetails.prepaidExpense" (change)="setPrepaidExpense($event.target.value)">
-                                    <button mat-button *ngIf="myExpenseDraftDetails.prepaidExpense" matSuffix mat-icon-button aria-label="Clear" (click)="resetPrepaidExpense()">
+                        <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="2%">
+                            <mat-form-field appearance="fill" fxFlex="26%">
+                                <mat-label>Week Ending</mat-label>
+                                <input matInput [matDatepicker]="picker1" formControlName="weekEnding"
+                                        (dateChange)="addEvent('change', $event)">
+                                <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                                <mat-datepicker #picker1></mat-datepicker>
+                                <mat-error *ngIf="hasError('weekEnding')">{{getWeekEndingErrorMessage()}}</mat-error>
+                            </mat-form-field>     
+                            <mat-form-field appearance="fill" fxFlex="26%">
+                                <mat-label>Prepaid Expense</mat-label>
+                                <span matPrefix>$&nbsp;</span>
+                                <input matInput type="number" formControlName="prepaidExpense" [value]="myExpenseDraftDetails?.prepaidExpense" (change)="setPrepaidExpense($event.target.value)">
+                                    <button mat-button *ngIf="myExpenseDraftDetails?.prepaidExpense" matSuffix mat-icon-button aria-label="Clear" (click)="resetPrepaidExpense()">
                                         <mat-icon>close</mat-icon>
                                     </button>
-                                </mat-form-field>
-                            </div>
+                            </mat-form-field>
                         </div>
                         <div class="row">
                             <div class="col">

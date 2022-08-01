@@ -24,8 +24,6 @@
                                     <i class="fas fa-user"></i> {{contractorName}} <i class="fas fa-caret-down"></i>
                                 </button>
                                 <div class="dropdown-menu" style="width: 100%; position: absolute; transform: translate3d(0px, 42px, 0px); top: 0px; left: 0px; will-change: transform;" x-placement="bottom-start">
-                                    <a class="dropdown-item" routerLink="/home"><i class="fa fa-user-circle-o" aria-hidden="true"></i>&nbsp;My Profile</a>
-                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" routerLink="" (click)="logout(false);">
                                         <i class="fas fa-sign-out-alt" aria-hidden="true"></i>&nbsp;Sign Out</a>
                                 </div>
@@ -76,9 +74,6 @@
                             <button *ngIf="isLoggedIn() && !currentIsApprovalPage()" class="btn header-btn-signout-nav" (click)="logout(false);" title="Sign Out">
                                 <i class="icofont-sign-out"></i>
                             </button>                                                        
-                            <button *ngIf="isLoggedIn() && !currentIsApprovalPage()" class="btn header-btn-user-nav" routerLink="/account-profile" title="View Profile">
-                                <i class="icofont-user-alt-7"></i>
-                            </button>
                             <button class="btn header-btn-collapse-nav collapsed" data-toggle="collapse" data-target=".header-nav-main nav" *ngIf="!currentIsApprovalPage()">
                                 <i class="fas fa-bars"></i>
                                 <i class="fa fa-times"></i>
